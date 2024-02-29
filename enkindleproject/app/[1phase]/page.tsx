@@ -1,44 +1,77 @@
 'use client'
+
 import { useEffect, useState } from "react";
+import { useRouter,useSearchParams } from "next/navigation";
 
 export default function Phase1() {
-  const [contentIndex, setContentIndex] = useState(0);
   const [effectdata, setEffectdata] = useState([]);
-  const [contents, setContent] = useState('');
-  const [author, setAuthor] = useState('');
+  const [currentContentIndex, setCurrentContentIndex] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [startX, setStartX] = useState(0);
+  const [isSliding, setIsSliding] = useState(false); // 슬라이딩 중 상태 추가
+  const router =useRouter();
+  // const searchParams = useSearchParams()
 
   useEffect(() => {
-    // study.json 파일을 가져오기 위해 fetch를 사용합니다.
     fetch('/study.json')
-      .then(response => response.json()) // JSON 형태로 변환합니다.
+      .then(response => response.json())
       .then(data => {
-        // 가져온 JSON 데이터를 contents 상태에 설정합니다.
         setEffectdata(data);
-        // 배열의 첫 번째 요소의 content와 author를 설정합니다.
-        setContent(data[0].content);
-        setAuthor(data[0].author);
       })
       .catch(error => {
         console.error('데이터를 불러오는 동안 오류가 발생했습니다:', error);
       });
   }, []);
 
+  const handleTouchStart = (event) => {
+    setStartY(event.touches[0].clientY);
+    setStartX(event.touches[0].clientX);
+    setIsSliding(false); // 터치 시작 시, 슬라이딩 중 상태를 false로 설정
+  };
 
-  const goToNextPage = () => {
-    // 다음 배열 요소의 인덱스를 계산합니다.
-    const nextIndex = (contentIndex + 1) % contents.length;
-    // 다음 배열 요소의 content와 author를 설정합니다.
-    setContent(contents[nextIndex].content);
-    setAuthor(contents[nextIndex].author);
-    // 다음 배열 요소의 인덱스를 상태에 업데이트합니다.
-    setContentIndex(nextIndex);
+  const handleTouchMoveY = (event) => {
+    if (!isSliding) { // 슬라이딩 중이 아닐 때만 실행
+      const deltaY = event.touches[0].clientY - startY;
+      if (deltaY < -50 || deltaY > 50) {
+        setIsSliding(true); // 슬라이드를 인식하면 슬라이딩 중으로 설정
+        setCurrentContentIndex((prevIndex) => {
+          let nextIndex = prevIndex + (deltaY < -50 ? 1 : -1);
+          nextIndex = Math.max(0, Math.min(nextIndex, effectdata.length - 1));
+          return nextIndex;
+        });
+      }
+    }
+  };
+  
+  const handleTouchMoveX = (event) => {
+    if (!isSliding) {
+      const deltaX = event.touches[0].clientX - startX;
+      console.log(deltaX)
+      if(deltaX < -70) {
+        setIsSliding(true);
+        router.push('/');
+      }
+    }
+  }
+
+  const handleTouchEnd = () => {
+    setIsSliding(false); // 터치가 끝나면 슬라이딩 중 상태를 false로 재설정
   };
 
   return (
-    <main className="outline outline-2 flex justify-center items-center w-11/12 h-2/3 rounded-md bg-slate-200 ">
-      {contents}
-      <br/>
-      {author}
+    <main 
+      className="outline outline-2 flex justify-center items-center w-11/12 h-2/3 rounded-md bg-slate-200"
+      onTouchStart={handleTouchStart}
+      onTouchMove={(event) => {
+        handleTouchMoveY(event);
+        handleTouchMoveX(event);
+      }}
+      onTouchEnd={handleTouchEnd} // 터치 엔드 이벤트 핸들러 추가
+    >
+      <div>
+        <p>{effectdata.length > 0 ? effectdata[currentContentIndex].content : ''}</p>
+        <p>- {effectdata.length > 0 ? effectdata[currentContentIndex].author : ''}</p>
+      </div>
     </main>
   );
 }
