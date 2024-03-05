@@ -18,6 +18,7 @@ export default function Home() {
     installPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
         console.log('사용자가 설치를 수락했습니다.');
+        prompt();
       } else {
         console.log('사용자가 설치를 거부했습니다.');
       }
@@ -26,15 +27,15 @@ export default function Home() {
   };
 
   // 사용자에게 앱 설치를 물어보는 조건을 추가
-  if(window.matchMedia('(display-mode: standalone)').matches) {
-    // PWA가 standalone 모드에서 실행 중인지 확인
-    console.log('PWA가 standalone 모드에서 실행 중입니다.');
-  } else {
-    // PWA가 standalone 모드에서 실행 중이 아닌 경우
-    window.addEventListener('beforeinstallprompt', handleInstallPrompt as EventListener);
+  // if(window.matchMedia('(display-mode: standalone)').matches) {
+  //   // PWA가 standalone 모드에서 실행 중인지 확인
+  //   console.log('PWA가 standalone 모드에서 실행 중입니다.');
+  // } else {
+  //   // PWA가 standalone 모드에서 실행 중이 아닌 경우
+  //   window.addEventListener('beforeinstallprompt', handleInstallPrompt as EventListener);
 
-    console.log('설치 팝업을 트리거합니다.');
-  }
+  //   console.log('설치 팝업을 트리거합니다.');
+  // }
 
   return (
     <main className="bg-green-800 w-full h-full flex items-center justify-center ">
