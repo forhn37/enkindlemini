@@ -1,7 +1,7 @@
 {
   "name": "My PWA",
   "short_name": "MyApp",
-  "start_url": "enkindlemini.vercel.app", 
+  "start_url": "https://enkindlemini.vercel.app", 
   "display": "standalone", 
   "theme_color": "#ffffff", 
   "background_color": "#ffffff", 
